@@ -8,10 +8,10 @@ interface PageProps {
 }
 
 const sampleVideos: Record<string, string> = {
-    m2: 'https://ik.imagekit.io/m46yip0ja/IbukuTriliunerRahasia/Ibuku%20triliuner%20rahasia1.mp4?updatedAt=1782789461973',
-    m4: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    m6: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    m11: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+    m2: 'https://smm-hub.my.id/videos/msbreewc/short/321.mp4',
+    m4: 'https://smm-hub.my.id/videos/msbreewc/short/322.mp4',
+    m6: 'https://smm-hub.my.id/videos/msbreewc/short/323.mp4',
+    m11: 'https://smm-hub.my.id/videos/msbreewc/short/324.mp4'
 };
 
 type Orientation = 'landscape' | 'portrait' | null;
@@ -29,7 +29,7 @@ function PlayerContent({ params }: PageProps) {
     const folderId = searchParams.get('folderId') || 'f1';
     const folderName = searchParams.get('folderName') || 'Folder';
 
-    const videoSrc = sampleVideos[id] || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    const videoSrc = sampleVideos[id] || 'https://smm-hub.my.id/videos/msbreewc/short/321.mp4';
 
     useEffect(() => {
         if (!document.querySelector('#google-fonts')) {
@@ -69,17 +69,17 @@ function PlayerContent({ params }: PageProps) {
     const videoStyle: React.CSSProperties =
         orientation === 'portrait'
             ? {
-                  // Portrait: fill height, auto width – keeps the pillar shape
-                  height: 'calc(100vh - 4rem)',
-                  width: 'auto',
-                  maxWidth: '100%',
-              }
+                // Portrait: fill height, auto width – keeps the pillar shape
+                height: 'calc(100vh - 4rem)',
+                width: 'auto',
+                maxWidth: '100%',
+            }
             : {
-                  // Landscape (default while loading too): fill width, auto height
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: 'calc(100vh - 4rem)',
-              };
+                // Landscape (default while loading too): fill width, auto height
+                width: '100%',
+                height: 'auto',
+                maxHeight: 'calc(100vh - 4rem)',
+            };
 
     return (
         <div
