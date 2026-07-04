@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.vipvidplus-video-player .video-js {
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100dvh - 4rem);
+  background-color: #09090b;
+}
+
+.vipvidplus-video-player .video-js .vjs-tech {
+  object-fit: contain;
+}
+
+.vipvidplus-video-player .video-js .vjs-poster {
+  background-size: contain;
+}
