@@ -5,58 +5,33 @@ import videojs from "video.js";
 import type Player from "video.js/dist/types/player";
 import "video.js/dist/video-js.css";
 
-function isHlsSource(src: string) {
-  return /\.m3u8(\?|$)/i.test(src);
-}
+type Props = { src: string };
 
-function getSourceType(src: string) {
-  if (isHlsSource(src)) {
-    return "application/x-mpegURL";
-  }
-
-  if (/\.webm(\?|$)/i.test(src)) {
-    return "video/webm";
-  }
-
-  return "video/mp4";
-}
-
-type VideoJsPlayerProps = {
-  src: string;
-};
-
-export default function VideoJsPlayer({ src }: VideoJsPlayerProps) {
+export default function VideoJsPlayer({ src }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !src) {
-      return;
-    }
+    if (!container || !src) return;
 
-    const videoElement = document.createElement("video");
-    videoElement.className = "video-js vjs-big-play-centered vjs-16-9";
-    videoElement.setAttribute("playsinline", "true");
-    videoElement.setAttribute("webkit-playsinline", "true");
-    videoElement.setAttribute("x5-playsinline", "true");
+    const videoEl = document.createElement("video");
+    videoEl.className = "video-js vjs-big-play-centered vjs-16-9";
+    videoEl.setAttribute("playsinline", "");
+    videoEl.setAttribute("webkit-playsinline", "");
+    container.replaceChildren(videoEl);
 
-    container.replaceChildren(videoElement);
+    const useNativeHls = videojs.browser.IS_ANY_SAFARI || videojs.browser.IS_IOS;
 
-    const useNativeHls =
-      videojs.browser.IS_ANY_SAFARI || videojs.browser.IS_IOS;
-
-    const player = videojs(videoElement, {
+    const player = videojs(videoEl, {
       controls: true,
       autoplay: false,
       preload: "auto",
       fluid: true,
       responsive: true,
       playsinline: true,
-      fill: false,
-      controlBar: {
-        pictureInPictureToggle: false,
-      },
+      inactivityTimeout: 3000,
+      controlBar: { pictureInPictureToggle: false },
       html5: {
         vhs: {
           overrideNative: !useNativeHls,
@@ -69,11 +44,7 @@ export default function VideoJsPlayer({ src }: VideoJsPlayerProps) {
       },
     });
 
-    player.src({
-      src,
-      type: getSourceType(src),
-    });
-
+    player.src({ src, type: "application/x-mpegURL" });
     playerRef.current = player;
 
     return () => {

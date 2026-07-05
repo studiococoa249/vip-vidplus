@@ -2,10 +2,15 @@
 
 import React, { Suspense, use, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import NativeVideoPlayer from "@/components/native-video-player";
 import VideoJsPlayer from "@/components/video-js-player";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+function isHlsSource(src: string) {
+  return /\.m3u8(\?|$)/i.test(src);
 }
 
 function PlayerContent({ params }: PageProps) {
@@ -19,15 +24,6 @@ function PlayerContent({ params }: PageProps) {
   const videoSrc = searchParams.get("videoUrl") || "";
 
   useEffect(() => {
-    if (!document.querySelector("#google-fonts")) {
-      const link = document.createElement("link");
-      link.id = "google-fonts";
-      link.rel = "stylesheet";
-      link.href =
-        "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap";
-      document.head.appendChild(link);
-    }
-
     if (!document.querySelector("#font-awesome")) {
       const link = document.createElement("link");
       link.id = "font-awesome";
@@ -39,11 +35,8 @@ function PlayerContent({ params }: PageProps) {
   }, []);
 
   return (
-    <div
-      className="flex flex-col h-[100dvh] w-screen bg-black text-slate-100 overflow-hidden"
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-    >
-      <header className="h-16 bg-zinc-950 border-b border-zinc-800 flex items-center px-4 shrink-0 safe-area-top">
+    <div className="flex flex-col h-[100dvh] w-screen bg-black text-slate-100 overflow-hidden">
+      <header className="h-16 bg-zinc-950 border-b border-zinc-800 flex items-center px-4 shrink-0">
         <button
           onClick={() =>
             router.push(
@@ -51,19 +44,26 @@ function PlayerContent({ params }: PageProps) {
             )
           }
           className="mr-4 text-zinc-400 hover:text-white p-2 rounded-full transition-colors flex items-center justify-center shrink-0"
+          aria-label="Back"
         >
-          <i className="fa-solid fa-arrow-left text-lg"></i>
+          <i className="fa-solid fa-arrow-left text-lg" />
         </button>
-        <span className="text-white font-bold truncate text-sm sm:text-base">
+        <span className="text-white font-semibold truncate text-sm sm:text-base">
           {videoName}
         </span>
       </header>
 
-      <main className="flex-1 flex items-center justify-center overflow-hidden bg-black px-2 sm:px-4 pb-[env(safe-area-inset-bottom)]">
+      <main className="flex-1 overflow-hidden bg-black" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {videoSrc ? (
-          <VideoJsPlayer src={videoSrc} />
+          isHlsSource(videoSrc) ? (
+            <VideoJsPlayer src={videoSrc} />
+          ) : (
+            <NativeVideoPlayer src={videoSrc} />
+          )
         ) : (
-          <p className="text-zinc-400 text-sm">Video URL not found.</p>
+          <div className="h-full flex items-center justify-center text-zinc-500 text-sm">
+            Video URL not found.
+          </div>
         )}
       </main>
     </div>
@@ -75,10 +75,8 @@ export default function PlayPage({ params }: PageProps) {
     <Suspense
       fallback={
         <div className="min-h-screen bg-black flex flex-col justify-center items-center text-slate-100">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-zinc-400 text-sm font-medium">
-            Loading player...
-          </p>
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className="mt-4 text-zinc-400 text-sm font-medium">Loading player…</p>
         </div>
       }
     >
