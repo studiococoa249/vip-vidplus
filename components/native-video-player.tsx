@@ -1,45 +1,47 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { resolveStreamUrl, toRelayUrl } from "@/lib/stream/client";
 
-function toStreamUrl(src: string) {
-  return `/api/stream?url=${encodeURIComponent(src)}`;
-}
+type LoadMode = "direct" | "relay";
 
 type Props = { src: string };
 
 export default function NativeVideoPlayer({ src }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const loadModeRef = useRef<LoadMode>("direct");
+  const playbackUrlRef = useRef(src);
   const [error, setError] = useState(false);
 
-  const tryDirect = useCallback(() => {
+  const attachSource = useCallback((mode: LoadMode, playbackUrl: string) => {
     const video = videoRef.current;
     if (!video) return;
-    if (video.src === src) return; // already on direct
+    loadModeRef.current = mode;
     setError(false);
-    video.src = src;
+    video.src = mode === "relay" ? toRelayUrl(src) : playbackUrl;
     video.load();
   }, [src]);
+
+  const startPlayback = useCallback(async (mode: LoadMode) => {
+    const playbackUrl = mode === "direct"
+      ? await resolveStreamUrl(src)
+      : src;
+    playbackUrlRef.current = playbackUrl;
+    attachSource(mode, playbackUrl);
+  }, [src, attachSource]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    setError(false);
-    video.src = toStreamUrl(src);
-    video.load();
-  }, [src]);
+    loadModeRef.current = "direct";
+    playbackUrlRef.current = src;
+    void startPlayback("direct");
+  }, [src, startPlayback]);
 
   function handleError() {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // If proxy failed, fall back to direct URL once
-    if (video.src !== src) {
-      console.warn("Proxy stream failed, falling back to direct URL");
-      tryDirect();
-    } else {
-      setError(true);
+    if (loadModeRef.current === "direct") {
+      attachSource("relay", playbackUrlRef.current);
+      return;
     }
+    setError(true);
   }
 
   return (
@@ -51,10 +53,10 @@ export default function NativeVideoPlayer({ src }: Props) {
           </svg>
           <p className="text-sm">Could not load video. The server may be unavailable.</p>
           <button
-            onClick={tryDirect}
+            onClick={() => void startPlayback("direct")}
             className="text-xs text-blue-400 underline"
           >
-            Try playing directly
+            Try again
           </button>
         </div>
       ) : (

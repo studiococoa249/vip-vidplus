@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
+
 const TELEGRAM_BOT_URL = "https://t.me/vidplusvideo_bot";
+
+export const metadata: Metadata = {
+  title: "Subscription Required",
+};
 
 export default function ErrorPage() {
   return (

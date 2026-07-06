@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { listVideosByActorSlug } from "@/lib/supabase/server";
@@ -6,6 +7,17 @@ import FileClient from "./file-client";
 type FilePageProps = {
   searchParams: Promise<{ slug?: string; name?: string }>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: FilePageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const folderName = params.name?.trim() || params.slug?.trim() || "Videos";
+
+  return {
+    title: folderName,
+  };
+}
 
 async function FilePageContent({
   searchParams,

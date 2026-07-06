@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
+import { SITE_NAME } from "@/lib/site";
+
 const TELEGRAM_BOT_URL = "https://t.me/vidplusvideo_bot";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: SITE_NAME,
+  },
+};
 
 function TelegramIcon({ className }: { className?: string }) {
   return (
